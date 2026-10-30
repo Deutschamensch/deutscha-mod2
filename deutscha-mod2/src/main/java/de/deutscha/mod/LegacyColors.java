@@ -30,7 +30,7 @@ public final class LegacyColors {
 					flush(result, buffer, style);
 					if (format == ChatFormatting.RESET) {
 						style = Style.EMPTY;
-					} else if (format.isFormat()) {
+					} else if (isStyleFormat(format)) {
 						style = style.applyFormat(format);
 					} else {
 						style = Style.EMPTY.applyFormat(format);
@@ -43,6 +43,14 @@ public final class LegacyColors {
 		}
 		flush(result, buffer, style);
 		return result;
+	}
+
+	private static boolean isStyleFormat(ChatFormatting format) {
+		return format == ChatFormatting.OBFUSCATED
+			|| format == ChatFormatting.BOLD
+			|| format == ChatFormatting.STRIKETHROUGH
+			|| format == ChatFormatting.UNDERLINE
+			|| format == ChatFormatting.ITALIC;
 	}
 
 	private static void flush(MutableComponent target, StringBuilder buffer, Style style) {
