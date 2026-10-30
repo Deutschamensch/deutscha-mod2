@@ -1,0 +1,29 @@
+{
+	"schemaVersion": 1,
+	"id": "deutschamod",
+	"version": "${version}",
+	"name": "Deutscha Mod",
+	"description": "Rainbow-Name, animierte XP-Bar, eigene Splash-Texte, D-Totem und Amboss-Farbcodes.",
+	"authors": [
+		"Deutscha"
+	],
+	"license": "All-Rights-Reserved",
+	"environment": "client",
+	"entrypoints": {
+		"client": [
+			"de.deutscha.mod.DeutschaMod"
+		]
+	},
+	"mixins": [
+		{
+			"config": "deutschamod.mixins.json",
+			"environment": "client"
+		}
+	],
+	"depends": {
+		"fabricloader": ">=0.20.1",
+		"minecraft": "~26.3",
+		"java": ">=25",
+		"fabric-api": "*"
+	}
+}

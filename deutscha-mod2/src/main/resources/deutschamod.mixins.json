@@ -1,0 +1,16 @@
+{
+	"required": true,
+	"package": "de.deutscha.mod.mixin",
+	"compatibilityLevel": "JAVA_25",
+	"client": [
+		"AnvilScreenMixin",
+		"ClientLanguageMixin",
+		"ItemStackMixin"
+	],
+	"injectors": {
+		"defaultRequire": 1
+	},
+	"overwrites": {
+		"requireAnnotations": true
+	}
+}
