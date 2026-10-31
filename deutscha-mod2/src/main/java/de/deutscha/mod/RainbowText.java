@@ -82,7 +82,7 @@ public final class RainbowText {
 		return Character.isLetterOrDigit(codePoint) || codePoint == '_';
 	}
 
-	private static int hsvToRgb(float hue) {
+	public static int hsvToRgb(float hue) {
 		float h = hue * 6.0F;
 		int sector = (int) Math.floor(h);
 		float f = h - sector;

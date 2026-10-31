@@ -1,0 +1,41 @@
+{
+  "textures": {
+    "0": "deutschamod:item/wing",
+    "particle": "deutschamod:item/wing"
+  },
+  "elements": [
+    {
+      "from": [
+        8,
+        0,
+        0
+      ],
+      "to": [
+        24,
+        24,
+        0.5
+      ],
+      "shade": false,
+      "faces": {
+        "north": {
+          "uv": [
+            16,
+            0,
+            0,
+            16
+          ],
+          "texture": "#0"
+        },
+        "south": {
+          "uv": [
+            0,
+            0,
+            16,
+            16
+          ],
+          "texture": "#0"
+        }
+      }
+    }
+  ]
+}
