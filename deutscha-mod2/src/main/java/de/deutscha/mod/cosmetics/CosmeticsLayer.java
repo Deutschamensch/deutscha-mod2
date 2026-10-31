@@ -31,16 +31,28 @@ public class CosmeticsLayer extends RenderLayer<AvatarRenderState, PlayerModel> 
 	private static final double FLAP_SPEED = 0.004D;
 
 	private final ItemModelResolver itemModelResolver;
-	private final ItemStack cloakStack = createStack("cloak");
-	private final ItemStack wingLeftStack = createStack("wing_left");
-	private final ItemStack wingRightStack = createStack("wing_right");
-	private final ItemStackRenderState cloakState = new ItemStackRenderState();
-	private final ItemStackRenderState wingLeftState = new ItemStackRenderState();
-	private final ItemStackRenderState wingRightState = new ItemStackRenderState();
+	private ItemStack cloakStack;
+	private ItemStack wingLeftStack;
+	private ItemStack wingRightStack;
+	private ItemStackRenderState cloakState;
+	private ItemStackRenderState wingLeftState;
+	private ItemStackRenderState wingRightState;
 
 	public CosmeticsLayer(RenderLayerParent<AvatarRenderState, PlayerModel> parent, ItemModelResolver itemModelResolver) {
 		super(parent);
 		this.itemModelResolver = itemModelResolver;
+	}
+
+	private void ensureInitialized() {
+		if (this.cloakStack != null) {
+			return;
+		}
+		this.cloakStack = createStack("cloak");
+		this.wingLeftStack = createStack("wing_left");
+		this.wingRightStack = createStack("wing_right");
+		this.cloakState = new ItemStackRenderState();
+		this.wingLeftState = new ItemStackRenderState();
+		this.wingRightState = new ItemStackRenderState();
 	}
 
 	private static ItemStack createStack(String modelName) {
@@ -55,6 +67,7 @@ public class CosmeticsLayer extends RenderLayer<AvatarRenderState, PlayerModel> 
 		if (self == null || state.id != self.getId() || state.isInvisible) {
 			return;
 		}
+		ensureInitialized();
 
 		poseStack.pushPose();
 		if (state.isCrouching) {
