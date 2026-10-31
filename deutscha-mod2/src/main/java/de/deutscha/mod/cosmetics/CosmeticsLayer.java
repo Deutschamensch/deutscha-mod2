@@ -1,7 +1,7 @@
 package de.deutscha.mod.cosmetics;
 
 import com.mojang.blaze3d.vertex.PoseStack;
-import com.mojang.math.Axis;
+import org.joml.Matrix4f;
 
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.model.player.PlayerModel;
@@ -58,7 +58,7 @@ public class CosmeticsLayer extends RenderLayer<AvatarRenderState, PlayerModel> 
 
 		poseStack.pushPose();
 		if (state.isCrouching) {
-			poseStack.mulPose(Axis.XP.rotationDegrees(CROUCH_TILT_DEGREES));
+			poseStack.mulPose(new Matrix4f().rotationX((float) Math.toRadians(CROUCH_TILT_DEGREES)));
 		}
 
 		if (Cosmetics.cloakEnabled()) {
@@ -86,7 +86,7 @@ public class CosmeticsLayer extends RenderLayer<AvatarRenderState, PlayerModel> 
 		this.itemModelResolver.updateForTopItem(renderState, stack, ItemDisplayContext.NONE, null, null, 0);
 		poseStack.pushPose();
 		poseStack.translate(0.0F, SHOULDER_Y, translateZ);
-		poseStack.mulPose(Axis.YP.rotationDegrees(yawDegrees));
+		poseStack.mulPose(new Matrix4f().rotationY((float) Math.toRadians(yawDegrees)));
 		poseStack.scale(1.0F, -1.0F, -1.0F);
 		poseStack.translate(-0.5F, 0.0F, 0.0F);
 		renderState.submit(poseStack, collector, light, OverlayTexture.NO_OVERLAY, state.outlineColor);
