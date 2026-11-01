@@ -1,0 +1,41 @@
+{
+  "textures": {
+    "0": "deutschamod:item/cloak",
+    "particle": "deutschamod:item/cloak"
+  },
+  "elements": [
+    {
+      "from": [
+        2,
+        0,
+        -0.5
+      ],
+      "to": [
+        14,
+        6,
+        0
+      ],
+      "shade": false,
+      "faces": {
+        "north": {
+          "uv": [
+            0,
+            5.3333,
+            16,
+            10.6667
+          ],
+          "texture": "#0"
+        },
+        "south": {
+          "uv": [
+            0,
+            5.3333,
+            16,
+            10.6667
+          ],
+          "texture": "#0"
+        }
+      }
+    }
+  ]
+}
