@@ -1,0 +1,11 @@
+{
+  "little_adventures": {
+    "category": "music",
+    "sounds": [
+      {
+        "name": "deutschamod:little_adventures",
+        "stream": true
+      }
+    ]
+  }
+}

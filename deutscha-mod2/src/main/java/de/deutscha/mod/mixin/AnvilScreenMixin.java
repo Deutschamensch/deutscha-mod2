@@ -14,7 +14,7 @@ public abstract class AnvilScreenMixin {
 	private String deutschamod$stripColorCodes(String name) {
 		String plain = LegacyColors.strip(name);
 		if (!plain.equals(name)) {
-			AnvilNameStore.setPending(plain, name);
+			AnvilNameStore.setPending(plain, LegacyColors.expandGradient(name));
 		}
 		return plain;
 	}

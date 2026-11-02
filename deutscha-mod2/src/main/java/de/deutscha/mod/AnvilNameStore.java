@@ -15,6 +15,8 @@ import com.google.gson.JsonParser;
 import net.fabricmc.loader.api.FabricLoader;
 
 public final class AnvilNameStore {
+	private static final String GRADIENT_KEY = "\u0001gradient";
+	private static final int[] DEFAULT_GRADIENT = {0xAA0000, 0xFF5555};
 	private static final Path FILE = FabricLoader.getInstance().getConfigDir()
 		.resolve("deutschamod")
 		.resolve("anvil_names.json");
@@ -41,7 +43,42 @@ public final class AnvilNameStore {
 	}
 
 	public static String get(String plainName) {
+		return lookup(plainName);
+	}
+
+	public static String lookup(String plainName) {
+		if (pendingPlain != null && pendingPlain.equals(plainName)) {
+			return pendingColored;
+		}
+		if (GRADIENT_KEY.equals(plainName)) {
+			return null;
+		}
 		return NAMES.get(plainName);
+	}
+
+	public static int[] gradient() {
+		String stored = NAMES.get(GRADIENT_KEY);
+		if (stored == null || stored.isEmpty()) {
+			return DEFAULT_GRADIENT;
+		}
+		String[] parts = stored.split(",");
+		int[] colors = new int[parts.length];
+		for (int i = 0; i < parts.length; i++) {
+			colors[i] = Integer.parseInt(parts[i], 16);
+		}
+		return colors;
+	}
+
+	public static void setGradient(int[] colors) {
+		StringBuilder joined = new StringBuilder();
+		for (int i = 0; i < colors.length; i++) {
+			if (i > 0) {
+				joined.append(',');
+			}
+			joined.append(String.format("%06X", colors[i]));
+		}
+		NAMES.put(GRADIENT_KEY, joined.toString());
+		save();
 	}
 
 	public static void setPending(String plain, String colored) {

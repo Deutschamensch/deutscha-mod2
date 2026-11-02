@@ -5,7 +5,9 @@
 	"client": [
 		"AnvilScreenMixin",
 		"ClientLanguageMixin",
-		"ItemStackMixin"
+		"EditBoxMixin",
+		"PauseScreenMixin",
+		"PlayerTabOverlayMixin"
 	],
 	"injectors": {
 		"defaultRequire": 1

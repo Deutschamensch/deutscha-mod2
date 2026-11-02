@@ -2,14 +2,17 @@ package de.deutscha.mod;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Optional;
 
 import net.minecraft.client.Minecraft;
+import net.minecraft.network.chat.Component;
 import net.minecraft.network.chat.Style;
 import net.minecraft.util.FormattedCharSequence;
 
 public final class RainbowText {
-	private static final long CYCLE_MILLIS = 3000L;
-	private static final float HUE_STEP_PER_LETTER = 0.07F;
+	private static final String PREFIX = "Owner | ";
+	private static final int[] NAME_GRADIENT = {0xAA0000, 0xFF5555};
+	private static final int MAX_ANVIL_KEY_LENGTH = 60;
 
 	private record Glyph(int position, Style style, int codePoint) {
 	}
@@ -19,27 +22,18 @@ public final class RainbowText {
 
 	public static FormattedCharSequence apply(FormattedCharSequence original) {
 		return sink -> {
-			String name = Minecraft.getInstance().getUser().getName();
 			List<Glyph> glyphs = new ArrayList<>();
 			original.accept((position, style, codePoint) -> {
 				glyphs.add(new Glyph(position, style, codePoint));
 				return true;
 			});
 
-			int[] nameCodePoints = name.codePoints().toArray();
-			boolean[] rainbow = new boolean[glyphs.size()];
-			int[] letterIndex = new int[glyphs.size()];
-			markName(glyphs, nameCodePoints, rainbow, letterIndex);
-
-			float base = (System.currentTimeMillis() % CYCLE_MILLIS) / (float) CYCLE_MILLIS;
-			for (int i = 0; i < glyphs.size(); i++) {
-				Glyph glyph = glyphs.get(i);
-				Style style = glyph.style();
-				if (rainbow[i]) {
-					float hue = base - letterIndex[i] * HUE_STEP_PER_LETTER;
-					style = style.withColor(hsvToRgb(hue - (float) Math.floor(hue)));
-				}
-				if (!sink.accept(glyph.position(), style, glyph.codePoint())) {
+			List<Glyph> result = anvilNames(glyphs);
+			if (result == null) {
+				result = ownerName(glyphs);
+			}
+			for (Glyph glyph : result) {
+				if (!sink.accept(glyph.position(), glyph.style(), glyph.codePoint())) {
 					return false;
 				}
 			}
@@ -47,35 +41,92 @@ public final class RainbowText {
 		};
 	}
 
-	private static void markName(List<Glyph> glyphs, int[] name, boolean[] rainbow, int[] letterIndex) {
+	private static List<Glyph> anvilNames(List<Glyph> glyphs) {
+		if (glyphs.isEmpty() || glyphs.size() > MAX_ANVIL_KEY_LENGTH) {
+			return null;
+		}
+		StringBuilder plain = new StringBuilder();
+		for (Glyph glyph : glyphs) {
+			plain.appendCodePoint(glyph.codePoint());
+		}
+		String colored = AnvilNameStore.lookup(plain.toString());
+		if (colored == null) {
+			return null;
+		}
+		List<Glyph> out = new ArrayList<>();
+		Component component = LegacyColors.toComponent(colored);
+		component.visit((style, content) -> {
+			content.codePoints().forEach(codePoint -> out.add(new Glyph(out.size(), style, codePoint)));
+			return Optional.empty();
+		}, Style.EMPTY);
+		return out;
+	}
+
+	private static List<Glyph> ownerName(List<Glyph> glyphs) {
+		int[] name = Minecraft.getInstance().getUser().getName().codePoints().toArray();
 		int length = name.length;
 		if (length == 0) {
-			return;
+			return glyphs;
 		}
-		for (int start = 0; start + length <= glyphs.size(); start++) {
-			if (start > 0 && isNameChar(glyphs.get(start - 1).codePoint())) {
+		List<Glyph> out = new ArrayList<>();
+		int i = 0;
+		while (i < glyphs.size()) {
+			if (!matchesAt(glyphs, i, name)) {
+				out.add(glyphs.get(i));
+				i++;
 				continue;
 			}
-			if (start + length < glyphs.size() && isNameChar(glyphs.get(start + length).codePoint())) {
-				continue;
+			boolean hasPrefix = endsWithPrefix(glyphs, i);
+			int prefixLength = hasPrefix ? 0 : PREFIX.length();
+			int total = prefixLength + length;
+			Glyph first = glyphs.get(i);
+			int index = 0;
+			for (int k = 0; k < prefixLength; k++) {
+				out.add(styled(first.position(), first.style(), PREFIX.codePointAt(k), index++, total));
 			}
-			boolean matches = true;
 			for (int k = 0; k < length; k++) {
-				int a = Character.toLowerCase(glyphs.get(start + k).codePoint());
-				int b = Character.toLowerCase(name[k]);
-				if (a != b) {
-					matches = false;
-					break;
-				}
+				out.add(styled(first.position() + k, glyphs.get(i + k).style(), glyphs.get(i + k).codePoint(), index++, total));
 			}
-			if (matches) {
-				for (int k = 0; k < length; k++) {
-					rainbow[start + k] = true;
-					letterIndex[start + k] = k;
-				}
-				start += length - 1;
+			i += length;
+		}
+		return out;
+	}
+
+	private static Glyph styled(int position, Style base, int codePoint, int index, int total) {
+		Style style = base.withBold(true).withColor(LegacyColors.colorAt(NAME_GRADIENT, index, total));
+		return new Glyph(position, style, codePoint);
+	}
+
+	private static boolean matchesAt(List<Glyph> glyphs, int start, int[] name) {
+		int length = name.length;
+		if (start + length > glyphs.size()) {
+			return false;
+		}
+		if (start > 0 && isNameChar(glyphs.get(start - 1).codePoint())) {
+			return false;
+		}
+		if (start + length < glyphs.size() && isNameChar(glyphs.get(start + length).codePoint())) {
+			return false;
+		}
+		for (int k = 0; k < length; k++) {
+			if (Character.toLowerCase(glyphs.get(start + k).codePoint()) != Character.toLowerCase(name[k])) {
+				return false;
 			}
 		}
+		return true;
+	}
+
+	private static boolean endsWithPrefix(List<Glyph> glyphs, int start) {
+		int length = PREFIX.length();
+		if (start < length) {
+			return false;
+		}
+		for (int k = 0; k < length; k++) {
+			if (glyphs.get(start - length + k).codePoint() != PREFIX.charAt(k)) {
+				return false;
+			}
+		}
+		return true;
 	}
 
 	private static boolean isNameChar(int codePoint) {
