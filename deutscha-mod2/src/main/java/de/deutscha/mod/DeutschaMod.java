@@ -103,7 +103,11 @@ public class DeutschaMod implements ClientModInitializer {
 				RainbowOverlay.draw(graphics);
 			});
 			if (screen instanceof AnvilScreen) {
-				ScreenEvents.remove(screen).register(closed -> AnvilNameStore.commitPending());
+				AnvilNameStore.setAnvilOpen(true);
+				ScreenEvents.remove(screen).register(closed -> {
+					AnvilNameStore.setAnvilOpen(false);
+					AnvilNameStore.commitPending();
+				});
 			}
 		});
 	}

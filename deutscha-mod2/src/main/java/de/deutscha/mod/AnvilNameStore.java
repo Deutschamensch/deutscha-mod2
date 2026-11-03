@@ -22,6 +22,7 @@ public final class AnvilNameStore {
 		.resolve("anvil_names.json");
 	private static final Map<String, String> NAMES = new HashMap<>();
 
+	private static boolean anvilOpen;
 	private static String pendingPlain;
 	private static String pendingColored;
 
@@ -40,6 +41,14 @@ public final class AnvilNameStore {
 		} catch (IOException e) {
 			throw new UncheckedIOException(e);
 		}
+	}
+
+	public static boolean isAnvilOpen() {
+		return anvilOpen;
+	}
+
+	public static void setAnvilOpen(boolean open) {
+		anvilOpen = open;
 	}
 
 	public static String get(String plainName) {
